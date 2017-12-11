@@ -1,0 +1,55 @@
+---
+- name: Install AFNI dependencies
+  apt: name={{ item }} state=present
+  when: ansible_os_family == 'Debian'
+  with_items:
+    - ed
+    - gsl-bin
+    - libglu1-mesa-dev
+    - libglib2.0-0
+    - libglw1-mesa
+    - libgomp1
+    - libjpeg62
+    - libxm4
+    - netpbm
+    - tcsh
+    - xfonts-base
+    - xvfb
+
+- name: Install AFNI dependencies not in Debian Stretch channels
+  apt: deb={{ item }} state=present
+  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "9"
+  with_items:
+    - http://mirrors.kernel.org/debian/pool/main/libx/libxp/libxp6_1.0.2-2_amd64.deb
+    - http://mirrors.kernel.org/debian/pool/main/libp/libpng/libpng12-0_1.2.49-1%2Bdeb7u2_amd64.deb
+
+
+- name: Install AFNI dependencies
+  yum: name={{ item }} state=present
+  when: ansible_os_family == 'RedHat'
+  with_items:
+     - ed
+     - gsl
+     - libGLU
+     - libgomp
+     - libpng12
+     - libXp
+     - libXpm
+     - netpbm-progs
+     - openmotif
+     - R-devel
+     - tcsh
+     - xorg-x11-fonts-misc
+     - xorg-x11-server-Xvfb
+
+- name: Create AFNI directory
+  file:
+    path: /opt/afni
+    state: directory
+
+- name: Download AFNI binaries
+  unarchive:
+    src: https://afni.nimh.nih.gov/pub/dist/tgz/linux_openmp_64.tgz
+    dest: /opt/afni
+    remote_src: yes
+    extra_opts: ['--strip-components=1']
